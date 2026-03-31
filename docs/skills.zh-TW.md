@@ -1,46 +1,46 @@
-# Skill Deep Dives
+# 技能深度解析
 
-**English** | [繁體中文](skills.zh-TW.md)
+[English](skills.md) | **繁體中文**
 
-Detailed guides for every gstack skill — philosophy, workflow, and examples.
+每個 gstack 技能的詳細指南：理念、流程與範例。
 
-| Skill | Your specialist | What they do |
-|-------|----------------|--------------|
-| [`/office-hours`](#office-hours) | **YC Office Hours** | Start here. Six forcing questions that reframe your product before you write code. Pushes back on your framing, challenges premises, generates implementation alternatives. Design doc feeds into every downstream skill. |
-| [`/plan-ceo-review`](#plan-ceo-review) | **CEO / Founder** | Rethink the problem. Find the 10-star product hiding inside the request. Four modes: Expansion, Selective Expansion, Hold Scope, Reduction. |
-| [`/plan-eng-review`](#plan-eng-review) | **Eng Manager** | Lock in architecture, data flow, diagrams, edge cases, and tests. Forces hidden assumptions into the open. |
-| [`/plan-design-review`](#plan-design-review) | **Senior Designer** | Interactive plan-mode design review. Rates each dimension 0-10, explains what a 10 looks like, fixes the plan. Works in plan mode. |
-| [`/design-consultation`](#design-consultation) | **Design Partner** | Build a complete design system from scratch. Knows the landscape, proposes creative risks, generates realistic product mockups. Design at the heart of all other phases. |
-| [`/review`](#review) | **Staff Engineer** | Find the bugs that pass CI but blow up in production. Auto-fixes the obvious ones. Flags completeness gaps. |
-| [`/investigate`](#investigate) | **Debugger** | Systematic root-cause debugging. Iron Law: no fixes without investigation. Traces data flow, tests hypotheses, stops after 3 failed fixes. |
-| [`/design-review`](#design-review) | **Designer Who Codes** | Live-site visual audit + fix loop. 80-item audit, then fixes what it finds. Atomic commits, before/after screenshots. |
-| [`/design-shotgun`](#design-shotgun) | **Design Explorer** | Generate multiple AI design variants, open a comparison board in your browser, and iterate until you approve a direction. Taste memory biases toward your preferences. |
-| [`/design-html`](#design-html) | **Design Engineer** | Takes an approved mockup from `/design-shotgun` and generates production-quality Pretext-native HTML. Text reflows on resize, heights adjust to content. Smart API routing per design type. Framework detection for React/Svelte/Vue. |
-| [`/qa`](#qa) | **QA Lead** | Test your app, find bugs, fix them with atomic commits, re-verify. Auto-generates regression tests for every fix. |
-| [`/qa-only`](#qa) | **QA Reporter** | Same methodology as /qa but report only. Use when you want a pure bug report without code changes. |
-| [`/ship`](#ship) | **Release Engineer** | Sync main, run tests, audit coverage, push, open PR. Bootstraps test frameworks if you don't have one. One command. |
-| [`/land-and-deploy`](#land-and-deploy) | **Release Engineer** | Merge the PR, wait for CI and deploy, verify production health. One command from "approved" to "verified in production." |
-| [`/canary`](#canary) | **SRE** | Post-deploy monitoring loop. Watches for console errors, performance regressions, and page failures using the browse daemon. |
-| [`/benchmark`](#benchmark) | **Performance Engineer** | Baseline page load times, Core Web Vitals, and resource sizes. Compare before/after on every PR. Track trends over time. |
-| [`/cso`](#cso) | **Chief Security Officer** | OWASP Top 10 + STRIDE threat modeling security audit. Scans for injection, auth, crypto, and access control issues. |
-| [`/document-release`](#document-release) | **Technical Writer** | Update all project docs to match what you just shipped. Catches stale READMEs automatically. |
-| [`/retro`](#retro) | **Eng Manager** | Team-aware weekly retro. Per-person breakdowns, shipping streaks, test health trends, growth opportunities. |
-| [`/browse`](#browse) | **QA Engineer** | Give the agent eyes. Real Chromium browser, real clicks, real screenshots. ~100ms per command. |
-| [`/setup-browser-cookies`](#setup-browser-cookies) | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
-| [`/autoplan`](#autoplan) | **Review Pipeline** | One command, fully reviewed plan. Runs CEO → design → eng review automatically with encoded decision principles. Surfaces only taste decisions for your approval. |
-| [`/learn`](#learn) | **Memory** | Manage what gstack learned across sessions. Review, search, prune, and export project-specific patterns and preferences. |
+| 技能 | 你的專家 | 他們做什麼 |
+|-------|----------|------------|
+| [`/office-hours`](#office-hours) | **YC Office Hours** | 從這裡開始。六個強迫性問題，在你寫程式碼前重新框定你的產品。挑戰你的框架與前提，提出實作替代方案。設計文件會餵給所有下游技能。 |
+| [`/plan-ceo-review`](#plan-ceo-review) | **執行長 / 創辦人** | 重新思考問題。找出需求裡隱藏的 10 星產品。四種模式：範圍擴展、選擇性擴展、維持範圍、縮減範圍。 |
+| [`/plan-eng-review`](#plan-eng-review) | **工程經理** | 釘住架構、資料流、圖表、邊界情況與測試。把隱含假設攤到檯面上。 |
+| [`/plan-design-review`](#plan-design-review) | **資深設計師** | 互動式計畫設計審查。逐維度評分 0-10，說明 10 分長什麼樣，並修正計畫。適用於 plan mode。 |
+| [`/design-consultation`](#design-consultation) | **設計夥伴** | 從零建立完整設計系統。熟悉設計版圖、提出創意風險、生成貼近產品的視覺稿。設計是所有階段的核心。 |
+| [`/review`](#review) | **資深工程師** | 找出能過 CI 但會在正式環境爆炸的 bug。自動修掉明顯問題，並標記完整性缺口。 |
+| [`/investigate`](#investigate) | **除錯專家** | 系統化根因除錯。鐵律：沒調查就不修。追蹤資料流、驗證假設，連續 3 次修復失敗就停。 |
+| [`/design-review`](#design-review) | **會寫程式的設計師** | 線上站點視覺稽核 + 修復迴圈。80 項審查，找到就修。原子提交，附前後對照截圖。 |
+| [`/design-shotgun`](#design-shotgun) | **設計探索者** | 產生多組 AI 設計變體，在瀏覽器開比較板，迭代到你核准方向。品味記憶會偏向你的偏好。 |
+| [`/design-html`](#design-html) | **設計工程師** | 以 `/design-shotgun` 核准稿為基礎，產出可上線、Pretext 原生 HTML。縮放時文字可重排，高度隨內容調整。依設計類型智慧路由 API，支援 React/Svelte/Vue 偵測。 |
+| [`/qa`](#qa) | **QA 主管** | 測你的產品、找 bug、以原子提交修復並重新驗證。每個修復都會自動補回歸測試。 |
+| [`/qa-only`](#qa) | **QA 報告者** | 與 /qa 相同方法，但只回報不改碼。適合你只想要純 bug 報告時使用。 |
+| [`/ship`](#ship) | **發佈工程師** | 同步 main、跑測試、稽核覆蓋率、推送並開 PR。若你沒有測試框架會自動幫你建。單一指令完成。 |
+| [`/land-and-deploy`](#land-and-deploy) | **發佈工程師** | 合併 PR，等待 CI 與部署，並驗證正式環境健康。從「已核准」到「正式環境驗證完成」一個指令搞定。 |
+| [`/canary`](#canary) | **SRE** | 部署後監控迴圈。用 browse daemon 監看 console 錯誤、效能退化與頁面失敗。 |
+| [`/benchmark`](#benchmark) | **效能工程師** | 建立頁面載入時間、Core Web Vitals、資源大小基線。每個 PR 做前後比較，追蹤長期趨勢。 |
+| [`/cso`](#cso) | **資安長** | OWASP Top 10 + STRIDE 威脅建模安全審查。掃描注入、認證、密碼學與權限控管問題。 |
+| [`/document-release`](#document-release) | **技術文件工程師** | 把專案文件更新到與剛出貨內容一致。自動抓出過期 README。 |
+| [`/retro`](#retro) | **工程經理** | 具團隊觀點的每週回顧。每人拆解、出貨連勝、測試健康趨勢與成長機會。 |
+| [`/browse`](#browse) | **QA 工程師** | 給代理人眼睛。真實 Chromium、真實點擊、真實截圖。每個指令約 100ms。 |
+| [`/setup-browser-cookies`](#setup-browser-cookies) | **Session 管理員** | 從你的真實瀏覽器（Chrome/Arc/Brave/Edge）匯入 cookie 到無頭 session。可測試需登入頁面。 |
+| [`/autoplan`](#autoplan) | **審查流水線** | 一個指令拿到完整審過的計畫。自動跑 CEO → design → eng review，並內建決策原則。只把品味決策留給你核准。 |
+| [`/learn`](#learn) | **記憶系統** | 管理 gstack 在跨 session 學到的內容。可檢視、搜尋、清理與匯出專案偏好與模式。 |
 | | | |
-| **Multi-AI** | | |
-| [`/codex`](#codex) | **Second Opinion** | Independent review from OpenAI Codex CLI. Three modes: code review (pass/fail gate), adversarial challenge, and open consultation with session continuity. Cross-model analysis when both `/review` and `/codex` have run. |
+| **多 AI** | | |
+| [`/codex`](#codex) | **第二意見** | 來自 OpenAI Codex CLI 的獨立審查。三種模式：程式碼審查（通過/失敗門檻）、對抗式挑戰、可延續 session 的開放諮詢。當 `/review` 與 `/codex` 都跑過時可做跨模型分析。 |
 | | | |
-| **Safety & Utility** | | |
-| [`/careful`](#safety--guardrails) | **Safety Guardrails** | Warns before destructive commands (rm -rf, DROP TABLE, force-push, git reset --hard). Override any warning. Common build cleanups whitelisted. |
-| [`/freeze`](#safety--guardrails) | **Edit Lock** | Restrict all file edits to a single directory. Blocks Edit and Write outside the boundary. Accident prevention for debugging. |
-| [`/guard`](#safety--guardrails) | **Full Safety** | Combines /careful + /freeze in one command. Maximum safety for prod work. |
-| [`/unfreeze`](#safety--guardrails) | **Unlock** | Remove the /freeze boundary, allowing edits everywhere again. |
-| [`/connect-chrome`](#connect-chrome) | **Chrome Controller** | Launch your real Chrome controlled by gstack with the Side Panel extension. Watch every action live. |
-| [`/setup-deploy`](#setup-deploy) | **Deploy Configurator** | One-time setup for `/land-and-deploy`. Detects your platform, production URL, and deploy commands. |
-| [`/gstack-upgrade`](#gstack-upgrade) | **Self-Updater** | Upgrade gstack to the latest version. Detects global vs vendored install, syncs both, shows what changed. |
+| **安全與工具** | | |
+| [`/careful`](#safety--guardrails) | **安全護欄** | 在破壞性命令（rm -rf、DROP TABLE、force-push、git reset --hard）前示警。可覆蓋任何警告。常見 build 清理已白名單。 |
+| [`/freeze`](#safety--guardrails) | **編輯鎖** | 將所有檔案編輯限制在單一目錄。阻擋邊界外 Edit/Write。除錯防呆。 |
+| [`/guard`](#safety--guardrails) | **完整防護** | 一個指令同時啟用 /careful + /freeze。正式環境作業的最高安全模式。 |
+| [`/unfreeze`](#safety--guardrails) | **解鎖** | 解除 /freeze 邊界，恢復可在所有目錄編輯。 |
+| [`/connect-chrome`](#connect-chrome) | **Chrome 控制器** | 啟動由 gstack 控制、含 Side Panel 擴充的真實 Chrome。所有操作可即時觀看。 |
+| [`/setup-deploy`](#setup-deploy) | **部署設定器** | `/land-and-deploy` 的一次性設定。偵測你的平台、正式環境 URL 與部署命令。 |
+| [`/gstack-upgrade`](#gstack-upgrade) | **自我更新器** | 升級 gstack 到最新版。偵測全域與 vendored 安裝、同步兩者並顯示變更。 |
 
 ---
 
