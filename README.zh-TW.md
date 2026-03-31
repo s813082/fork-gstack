@@ -103,6 +103,17 @@ cd ~/gstack && ./setup --host factory
 
 Skills 安裝到 `~/.factory/skills/gstack-*/`。重新啟動 `droid` 以重新掃描 skills，然後輸入 `/qa` 開始使用。
 
+### OpenClaw
+
+gstack 可與 [OpenClaw](https://github.com/openclaw/openclaw) 搭配使用。Skills 安裝到 `.openclaw/skills/`，並帶有 OpenClaw 相容的 frontmatter——每個技能都包含 `metadata.openclaw` 及 emoji 和執行時需求，讓 OpenClaw 可以正確地發現和顯示它們。
+
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host openclaw
+```
+
+Skills 安裝到 `~/.openclaw/skills/gstack-*/`。重新啟動 `openclaw` 以重新掃描 skills，然後輸入 `/qa` 開始使用。
+
 ## 看它運作
 
 ```
