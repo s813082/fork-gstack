@@ -32,9 +32,10 @@ const HOST_ARG_VAL: HostArg = (() => {
   const val = HOST_ARG.includes('=') ? HOST_ARG.split('=')[1] : process.argv[process.argv.indexOf(HOST_ARG) + 1];
   if (val === 'codex' || val === 'agents') return 'codex';
   if (val === 'factory' || val === 'droid') return 'factory';
+  if (val === 'openclaw') return 'openclaw';
   if (val === 'claude') return 'claude';
   if (val === 'all') return 'all';
-  throw new Error(`Unknown host: ${val}. Use claude, codex, factory, droid, agents, or all.`);
+  throw new Error(`Unknown host: ${val}. Use claude, codex, factory, droid, agents, openclaw, or all.`);
 })();
 
 // For single-host mode, HOST is the host. For --host all, it's set per iteration below.
@@ -155,11 +156,48 @@ policy:
 `;
 }
 
+/** Emoji mapping for OpenClaw skill metadata */
+const OPENCLAW_SKILL_EMOJIS: Record<string, string> = {
+  gstack: '🧰',
+  autoplan: '📋',
+  benchmark: '📊',
+  browse: '🌐',
+  canary: '🐤',
+  careful: '⚠️',
+  codex: '🤖',
+  'connect-chrome': '🔌',
+  cso: '🔒',
+  'design-consultation': '🎨',
+  'design-html': '🖼️',
+  'design-review': '🎯',
+  'design-shotgun': '💥',
+  'document-release': '📝',
+  freeze: '🧊',
+  'gstack-upgrade': '⬆️',
+  guard: '🛡️',
+  investigate: '🔍',
+  'land-and-deploy': '🚀',
+  learn: '📚',
+  'office-hours': '💡',
+  'plan-ceo-review': '👔',
+  'plan-design-review': '✏️',
+  'plan-eng-review': '⚙️',
+  'qa-only': '📋',
+  qa: '🧪',
+  retro: '🔄',
+  review: '👀',
+  'setup-browser-cookies': '🍪',
+  'setup-deploy': '🏗️',
+  ship: '🚢',
+  unfreeze: '🔓',
+};
+
 /**
  * Transform frontmatter for external hosts.
  * Claude: strips `sensitive:` field (only Factory uses it).
  * Codex: keeps name + description only, enforces 1024-char limit.
  * Factory: keeps name + description + user-invocable, conditionally adds disable-model-invocation.
+ * OpenClaw: keeps name + description + version, adds metadata.openclaw with emoji and requires.
  */
 function transformFrontmatter(content: string, host: Host): string {
   if (host === 'claude') {
@@ -194,6 +232,15 @@ function transformFrontmatter(content: string, host: Host): string {
     let fm = `---\nname: ${name}\ndescription: |\n${indentedDesc}\nuser-invocable: true\n`;
     if (sensitive) fm += `disable-model-invocation: true\n`;
     fm += '---';
+    return fm + body;
+  }
+
+  if (host === 'openclaw') {
+    const versionMatch = frontmatter.match(/^version:\s*(.+)$/m);
+    const version = versionMatch ? versionMatch[1].trim() : '1.0.0';
+    const indentedDesc = description.split('\n').map(l => `  ${l}`).join('\n');
+    const emoji = OPENCLAW_SKILL_EMOJIS[name] || '🔧';
+    let fm = `---\nname: ${name}\ndescription: |\n${indentedDesc}\nversion: ${version}\nmetadata:\n  openclaw:\n    emoji: "${emoji}"\n    requires:\n      bins:\n        - git\n---`;
     return fm + body;
   }
 
@@ -234,14 +281,15 @@ function extractHookSafetyProse(tmplContent: string): string | null {
 // ─── External Host Config ────────────────────────────────────
 
 interface ExternalHostConfig {
-  hostSubdir: string;          // '.agents' | '.factory'
-  generateMetadata: boolean;   // true for codex (openai.yaml), false for factory
-  descriptionLimit?: number;   // 1024 for codex, undefined for factory
+  hostSubdir: string;          // '.agents' | '.factory' | '.openclaw'
+  generateMetadata: boolean;   // true for codex (openai.yaml), false for factory/openclaw
+  descriptionLimit?: number;   // 1024 for codex, undefined for factory/openclaw
 }
 
 const EXTERNAL_HOST_CONFIG: Record<string, ExternalHostConfig> = {
-  codex:   { hostSubdir: '.agents',  generateMetadata: true,  descriptionLimit: 1024 },
-  factory: { hostSubdir: '.factory', generateMetadata: false },
+  codex:    { hostSubdir: '.agents',   generateMetadata: true,  descriptionLimit: 1024 },
+  factory:  { hostSubdir: '.factory',  generateMetadata: false },
+  openclaw: { hostSubdir: '.openclaw', generateMetadata: false },
 };
 
 // ─── Template Processing ────────────────────────────────────
@@ -395,7 +443,7 @@ function findTemplates(): string[] {
   return discoverTemplates(ROOT).map(t => path.join(ROOT, t.tmpl));
 }
 
-const ALL_HOSTS: Host[] = ['claude', 'codex', 'factory'];
+const ALL_HOSTS: Host[] = ['claude', 'codex', 'factory', 'openclaw'];
 const hostsToRun: Host[] = HOST_ARG_VAL === 'all' ? ALL_HOSTS : [HOST];
 const failures: { host: string; error: Error }[] = [];
 

@@ -1843,19 +1843,139 @@ describe('Factory generation (--host factory)', () => {
   });
 });
 
+// ─── OpenClaw generation (--host openclaw) ───────────────────
+
+describe('OpenClaw generation (--host openclaw)', () => {
+  const OPENCLAW_DIR = path.join(ROOT, '.openclaw', 'skills');
+
+  // Generate OpenClaw output for tests
+  Bun.spawnSync(['bun', 'run', 'scripts/gen-skill-docs.ts', '--host', 'openclaw'], {
+    cwd: ROOT, stdout: 'pipe', stderr: 'pipe',
+  });
+
+  const OPENCLAW_SKILLS = (() => {
+    const skills: Array<{ dir: string; openclawName: string }> = [];
+    const isSymlinkLoop = (name: string): boolean => {
+      const openclawSkillDir = path.join(ROOT, '.openclaw', 'skills', name);
+      try { return fs.realpathSync(openclawSkillDir) === fs.realpathSync(ROOT); }
+      catch { return false; }
+    };
+    if (fs.existsSync(path.join(ROOT, 'SKILL.md.tmpl'))) {
+      if (!isSymlinkLoop('gstack')) skills.push({ dir: '.', openclawName: 'gstack' });
+    }
+    for (const entry of fs.readdirSync(ROOT, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+      if (entry.name === 'codex') continue;
+      if (!fs.existsSync(path.join(ROOT, entry.name, 'SKILL.md.tmpl'))) continue;
+      const openclawName = entry.name.startsWith('gstack-') ? entry.name : `gstack-${entry.name}`;
+      if (isSymlinkLoop(openclawName)) continue;
+      skills.push({ dir: entry.name, openclawName });
+    }
+    return skills;
+  })();
+
+  test('--host openclaw generates correct output paths', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const skillMd = path.join(OPENCLAW_DIR, skill.openclawName, 'SKILL.md');
+      expect(fs.existsSync(skillMd)).toBe(true);
+    }
+  });
+
+  test('OpenClaw frontmatter has name + description + version + metadata.openclaw', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const content = fs.readFileSync(path.join(OPENCLAW_DIR, skill.openclawName, 'SKILL.md'), 'utf-8');
+      const fmEnd = content.indexOf('\n---', 4);
+      const frontmatter = content.slice(4, fmEnd);
+      expect(frontmatter).toContain('name:');
+      expect(frontmatter).toContain('description:');
+      expect(frontmatter).toContain('version:');
+      expect(frontmatter).toContain('metadata:');
+      expect(frontmatter).toContain('openclaw:');
+      expect(frontmatter).toContain('emoji:');
+      expect(frontmatter).toContain('requires:');
+      expect(frontmatter).toContain('bins:');
+      // Must NOT have Claude-specific fields
+      expect(frontmatter).not.toContain('allowed-tools:');
+      expect(frontmatter).not.toContain('preamble-tier:');
+    }
+  });
+
+  test('no .claude/skills/ in OpenClaw output', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const content = fs.readFileSync(path.join(OPENCLAW_DIR, skill.openclawName, 'SKILL.md'), 'utf-8');
+      expect(content).not.toContain('.claude/skills');
+    }
+  });
+
+  test('no ~/.claude/skills/ paths in OpenClaw output', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const content = fs.readFileSync(path.join(OPENCLAW_DIR, skill.openclawName, 'SKILL.md'), 'utf-8');
+      expect(content).not.toContain('~/.claude/skills');
+    }
+  });
+
+  test('/codex skill excluded from OpenClaw output', () => {
+    expect(fs.existsSync(path.join(OPENCLAW_DIR, 'gstack-codex', 'SKILL.md'))).toBe(false);
+    expect(fs.existsSync(path.join(OPENCLAW_DIR, 'gstack-codex'))).toBe(false);
+  });
+
+  test('no agents/openai.yaml in OpenClaw output', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const yamlPath = path.join(OPENCLAW_DIR, skill.openclawName, 'agents', 'openai.yaml');
+      expect(fs.existsSync(yamlPath)).toBe(false);
+    }
+  });
+
+  test('--host openclaw --dry-run freshness', () => {
+    const result = Bun.spawnSync(['bun', 'run', 'scripts/gen-skill-docs.ts', '--host', 'openclaw', '--dry-run'], {
+      cwd: ROOT, stdout: 'pipe', stderr: 'pipe',
+    });
+    expect(result.exitCode).toBe(0);
+    const output = result.stdout.toString();
+    for (const skill of OPENCLAW_SKILLS) {
+      expect(output).toContain(`FRESH: .openclaw/skills/${skill.openclawName}/SKILL.md`);
+    }
+    expect(output).not.toContain('STALE');
+  });
+
+  test('OpenClaw preamble uses .openclaw paths', () => {
+    const content = fs.readFileSync(path.join(OPENCLAW_DIR, 'gstack-review', 'SKILL.md'), 'utf-8');
+    expect(content).toContain('GSTACK_ROOT');
+    expect(content).toContain('$_ROOT/.openclaw/skills/gstack');
+    expect(content).toContain('$GSTACK_BIN/gstack-config');
+  });
+
+  test('all OpenClaw SKILL.md files have auto-generated header', () => {
+    for (const skill of OPENCLAW_SKILLS) {
+      const content = fs.readFileSync(path.join(OPENCLAW_DIR, skill.openclawName, 'SKILL.md'), 'utf-8');
+      expect(content).toContain('AUTO-GENERATED from SKILL.md.tmpl');
+      expect(content).toContain('Regenerate: bun run gen:skill-docs');
+    }
+  });
+
+  test('hook skills have safety prose in OpenClaw output', () => {
+    const HOOK_SKILLS = ['gstack-careful', 'gstack-freeze', 'gstack-guard'];
+    for (const skillName of HOOK_SKILLS) {
+      const content = fs.readFileSync(path.join(OPENCLAW_DIR, skillName, 'SKILL.md'), 'utf-8');
+      expect(content).toContain('Safety Advisory');
+    }
+  });
+});
+
 // ─── --host all tests ────────────────────────────────────────
 
 describe('--host all', () => {
-  test('--host all generates for claude, codex, and factory', () => {
+  test('--host all generates for claude, codex, factory, and openclaw', () => {
     const result = Bun.spawnSync(['bun', 'run', 'scripts/gen-skill-docs.ts', '--host', 'all', '--dry-run'], {
       cwd: ROOT, stdout: 'pipe', stderr: 'pipe',
     });
     expect(result.exitCode).toBe(0);
     const output = result.stdout.toString();
-    // All three hosts should appear in output
+    // All four hosts should appear in output
     expect(output).toContain('FRESH: SKILL.md');           // claude
     expect(output).toContain('FRESH: .agents/skills/');     // codex
     expect(output).toContain('FRESH: .factory/skills/');    // factory
+    expect(output).toContain('FRESH: .openclaw/skills/');   // openclaw
   });
 });
 
@@ -1935,15 +2055,16 @@ describe('setup script validation', () => {
     expect(fnBody).toContain('ln -snf "gstack/$dir_name"');
   });
 
-  test('setup supports --host auto|claude|codex|kiro', () => {
+  test('setup supports --host auto|claude|codex|kiro|openclaw', () => {
     expect(setupContent).toContain('--host');
-    expect(setupContent).toContain('claude|codex|kiro|factory|auto');
+    expect(setupContent).toContain('claude|codex|kiro|factory|openclaw|auto');
   });
 
-  test('auto mode detects claude, codex, and kiro binaries', () => {
+  test('auto mode detects claude, codex, kiro, and openclaw binaries', () => {
     expect(setupContent).toContain('command -v claude');
     expect(setupContent).toContain('command -v codex');
     expect(setupContent).toContain('command -v kiro-cli');
+    expect(setupContent).toContain('command -v openclaw');
   });
 
   // T1: Sidecar skip guard — prevents .agents/skills/gstack from being linked as a skill
@@ -1969,6 +2090,14 @@ describe('setup script validation', () => {
     expect(setupContent).toContain('kiro-cli');
     expect(setupContent).toContain('KIRO_SKILLS=');
     expect(setupContent).toContain('~/.kiro/skills/gstack');
+  });
+
+  // T4: OpenClaw host support in setup script
+  test('setup supports --host openclaw with install section', () => {
+    expect(setupContent).toContain('INSTALL_OPENCLAW=');
+    expect(setupContent).toContain('OPENCLAW_SKILLS=');
+    expect(setupContent).toContain('create_openclaw_runtime_root');
+    expect(setupContent).toContain('link_openclaw_skill_dirs');
   });
 
   test('create_agents_sidecar links runtime assets', () => {
