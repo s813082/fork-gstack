@@ -105,6 +105,17 @@ cd ~/gstack && ./setup --host factory
 
 Skills install to `~/.factory/skills/gstack-*/`. Restart `droid` to rescan skills, then type `/qa` to get started.
 
+### OpenClaw
+
+gstack works with [OpenClaw](https://github.com/openclaw/openclaw). Skills install to `.openclaw/skills/` with OpenClaw-compatible frontmatter — each skill includes `metadata.openclaw` with emoji and runtime requirements so OpenClaw can discover and display them correctly.
+
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host openclaw
+```
+
+Skills install to `~/.openclaw/skills/gstack-*/`. Restart `openclaw` to rescan skills, then type `/qa` to get started.
+
 ## See it work
 
 ```
